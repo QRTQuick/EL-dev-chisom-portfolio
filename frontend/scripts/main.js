@@ -628,7 +628,7 @@ class SnakeGame {
         this.gameLoop = setInterval(() => {
             this.update();
             this.draw();
-        }, 150);
+        }, 200); // Reduced speed from 150ms to 200ms for slower movement
         
         this.updateButtons();
         this.hideGameOverlay();
@@ -645,7 +645,7 @@ class SnakeGame {
             this.gameLoop = setInterval(() => {
                 this.update();
                 this.draw();
-            }, 150);
+            }, 200); // Reduced speed from 150ms to 200ms for slower movement
         }
         
         this.updateButtons();

@@ -2303,18 +2303,25 @@ section {
 
 /* Button Control Pad */
 .button-control .control-pad {
-    display: grid;
-    grid-template-rows: auto auto auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 0.5rem;
     max-width: 200px;
     margin: 0 auto;
 }
 
-.control-middle {
-    display: grid;
-    grid-template-columns: auto auto auto;
-    gap: 0.5rem;
+.control-row-top,
+.control-row-bottom {
+    display: flex;
+    justify-content: center;
+}
+
+.control-row-middle {
+    display: flex;
     align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
 }
 
 .control-btn {

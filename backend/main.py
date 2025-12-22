@@ -1,7 +1,9 @@
 from fastapi import FastAPI, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 import os
 import asyncio
+import requests
 import httpx
 from datetime import datetime
 from dotenv import load_dotenv
@@ -9,11 +11,40 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Initialize FastAPI app
+# Keep-alive configuration
+KEEP_ALIVE_URL = os.getenv("KEEP_ALIVE_URL", "https://portfolio-backend-ux42.onrender.com")
+KEEP_ALIVE_INTERVAL = 2  # 2 seconds
+
+# Keep-alive task using requests (sync) instead of httpx
+async def keep_alive_task():
+    """Background task to ping the server every 2 seconds to prevent sleep"""
+    while True:
+        try:
+            # Use requests instead of httpx for keep-alive
+            response = requests.get(f"{KEEP_ALIVE_URL}/ping", timeout=10)
+            print(f"Keep-alive ping: {response.status_code} at {datetime.now()}")
+        except Exception as e:
+            print(f"Keep-alive ping failed: {e} at {datetime.now()}")
+        
+        await asyncio.sleep(KEEP_ALIVE_INTERVAL)
+
+# Lifespan context manager for startup/shutdown events
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    if os.getenv("ENVIRONMENT") == "production":
+        asyncio.create_task(keep_alive_task())
+        print("Keep-alive task started for production environment")
+    yield
+    # Shutdown (if needed)
+    pass
+
+# Initialize FastAPI app with lifespan
 app = FastAPI(
     title="EL-Dev Chisom Portfolio API",
     description="Backend API for EL-Dev Chisom's portfolio website",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # CORS middleware
@@ -24,30 +55,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Keep-alive configuration
-KEEP_ALIVE_URL = os.getenv("KEEP_ALIVE_URL", "https://portfolio-backend-ux42.onrender.com")
-KEEP_ALIVE_INTERVAL = 2  # 2 seconds
-
-# Keep-alive task
-async def keep_alive_task():
-    """Background task to ping the server every 2 seconds to prevent sleep"""
-    while True:
-        try:
-            async with httpx.AsyncClient() as client:
-                response = await client.get(f"{KEEP_ALIVE_URL}/ping", timeout=10)
-                print(f"Keep-alive ping: {response.status_code} at {datetime.now()}")
-        except Exception as e:
-            print(f"Keep-alive ping failed: {e} at {datetime.now()}")
-        
-        await asyncio.sleep(KEEP_ALIVE_INTERVAL)
-
-# Startup event
-@app.on_event("startup")
-async def startup_event():
-    if os.getenv("ENVIRONMENT") == "production":
-        asyncio.create_task(keep_alive_task())
-        print("Keep-alive task started for production environment")
 
 @app.get("/")
 async def root():
@@ -78,12 +85,12 @@ async def ping():
 async def get_github_repos():
     try:
         github_username = os.getenv("GITHUB_USERNAME", "QRTQuick")
-        async with httpx.AsyncClient() as client:
-            response = await client.get(f"https://api.github.com/users/{github_username}/repos")
-            if response.status_code == 200:
-                return response.json()
-            else:
-                raise HTTPException(status_code=response.status_code, detail="Failed to fetch repositories")
+        # Use requests instead of httpx for better compatibility
+        response = requests.get(f"https://api.github.com/users/{github_username}/repos", timeout=10)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise HTTPException(status_code=response.status_code, detail="Failed to fetch repositories")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
