@@ -1,5 +1,5 @@
 // Portfolio API Configuration
-const API_BASE_URL = 'https://backend-portfolio.onrender.com';
+const API_BASE_URL = 'https://portfolio-api.onrender.com';
 
 // API Helper Functions
 class PortfolioAPI {

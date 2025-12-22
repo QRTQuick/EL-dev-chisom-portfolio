@@ -7,14 +7,14 @@ services:
     plan: free
     buildCommand: cd backend && pip install -r requirements.txt
     startCommand: cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT
-    pythonVersion: "3.13"
+    pythonVersion: "3.11"
     envVars:
       - key: ENVIRONMENT
         value: production
       - key: CORS_ORIGINS
         value: "*"
       - key: KEEP_ALIVE_URL
-        value: https://backend-portfolio.onrender.com
+        value: https://portfolio-api.onrender.com
       - key: GITHUB_USERNAME
         value: QRTQuick
       - key: EMAIL_FROM

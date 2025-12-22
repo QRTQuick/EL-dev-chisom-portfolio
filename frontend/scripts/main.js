@@ -11,6 +11,7 @@ class PortfolioAnimations {
         this.setupTypewriter();
         this.setupContactForm();
         this.setupScrollToTop();
+        this.setupVibeSection();
     }
 
     // Navigation animations
@@ -167,22 +168,24 @@ class PortfolioAnimations {
             submitBtn.disabled = true;
 
             try {
-                // Send to backend API
-                const response = await fetch('https://portfolio-backend-ux42.onrender.com/api/contact', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                if (response.ok) {
-                    // Show success message
-                    submitBtn.textContent = 'Message Sent!';
-                    submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-                    
-                    // Reset form
-                    contactForm.reset();
-                    
-                    // Show success notification
-                    this.showNotification('Message sent successfully!', 'success');
+                // Send to backend API using the centralized API service
+                const contactData = {
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    message: formData.get('message')
+                };
+                
+                const result = await portfolioAPI.submitContact(contactData);
+                
+                // Show success message
+                submitBtn.textContent = 'Message Sent!';
+                submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                
+                // Reset form
+                contactForm.reset();
+                
+                // Show success notification
+                this.showNotification(result.message || 'Message sent successfully!', 'success');
                 } else {
                     throw new Error('Failed to send message');
                 }
@@ -305,8 +308,8 @@ class PortfolioAnimations {
         indicator.className = 'keep-alive-indicator';
         document.body.appendChild(indicator);
 
-        // Backend URL
-        const BACKEND_URL = 'https://portfolio-backend-ux42.onrender.com';
+        // Backend URL - use the same as api.js
+        const BACKEND_URL = 'https://portfolio-api.onrender.com';
 
         // Keep-alive ping function
         const keepAlive = async () => {
@@ -1203,3 +1206,33 @@ class MobileGameControls {
         console.log(`Mobile control: ${direction}`);
     }
 }
+
+    // Vibe Section - Rotating Quotes
+    setupVibeSection() {
+        const quotes = document.querySelectorAll('.quote');
+        if (quotes.length === 0) return;
+
+        let currentQuote = 0;
+        
+        setInterval(() => {
+            // Hide current quote
+            quotes[currentQuote].classList.remove('active');
+            
+            // Move to next quote
+            currentQuote = (currentQuote + 1) % quotes.length;
+            
+            // Show next quote
+            quotes[currentQuote].classList.add('active');
+        }, 3500); // Change quote every 3.5 seconds
+        
+        // Add click handlers for tech icons
+        const techIcons = document.querySelectorAll('.tech-icon');
+        techIcons.forEach(icon => {
+            icon.addEventListener('click', () => {
+                icon.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    icon.style.transform = '';
+                }, 150);
+            });
+        });
+    }

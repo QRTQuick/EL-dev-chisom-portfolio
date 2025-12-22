@@ -11,16 +11,24 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Keep-alive configuration
-KEEP_ALIVE_URL = os.getenv("KEEP_ALIVE_URL", "https://backend-portfolio.onrender.com")
+KEEP_ALIVE_URL = os.getenv("KEEP_ALIVE_URL", "https://portfolio-api.onrender.com")
+# Clean up any malformed URLs
+if "https-" in KEEP_ALIVE_URL and ".onrender.com.onrender.com" in KEEP_ALIVE_URL:
+    KEEP_ALIVE_URL = KEEP_ALIVE_URL.replace("https-", "https://").replace(".onrender.com.onrender.com", ".onrender.com")
 KEEP_ALIVE_INTERVAL = 4  # 4 seconds
 
 # Keep-alive task using requests (sync) instead of httpx
 async def keep_alive_task():
     """Background task to ping the server every 4 seconds to prevent sleep"""
+    # Log the URL being used for debugging
+    print(f"Keep-alive URL: {KEEP_ALIVE_URL}")
+    
     while True:
         try:
             # Use requests instead of httpx for keep-alive
-            response = requests.get(f"{KEEP_ALIVE_URL}/ping", timeout=10)
+            ping_url = f"{KEEP_ALIVE_URL}/ping"
+            print(f"Pinging: {ping_url}")
+            response = requests.get(ping_url, timeout=10)
             print(f"Keep-alive ping: {response.status_code} at {datetime.now()}")
         except Exception as e:
             print(f"Keep-alive ping failed: {e} at {datetime.now()}")
