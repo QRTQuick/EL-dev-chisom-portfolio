@@ -4,42 +4,46 @@ services:
     name: portfolio-backend
     env: python
     region: oregon
-    buildCommand: "pip install -r backend/requirements.txt"
-    startCommand: "cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT"
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.0
+        value: "3.11"
       - key: ENVIRONMENT
         value: production
       - key: CORS_ORIGINS
-        value: https://portfolio-frontend-[your-actual-id].onrender.com
+        value: https://el-dev-chisom-portfolio.onrender.com
       - key: KEEP_ALIVE_URL
-        value: https://portfolio-backend-[your-actual-id].onrender.com
+        value: https://portfolio-backend-ux42.onrender.com
       - key: GITHUB_USERNAME
         value: QRTQuick
       - key: EMAIL_FROM
         value: chisomlifeeke@gmail.com
-      - key: DATABASE_URL
-        sync: false
-      - key: FIREBASE_CREDENTIALS
-        sync: false
+      - key: FIREBASE_API_KEY
+        value: AIzaSyDQar5pXsXn8pV-pkdBTOZwpNpUSFH6IzQ
+      - key: FIREBASE_AUTH_DOMAIN
+        value: el-dev-chisom.firebaseapp.com
+      - key: FIREBASE_PROJECT_ID
+        value: el-dev-chisom
+      - key: FIREBASE_DATABASE_URL
+        value: https://el-dev-chisom-default-rtdb.firebaseio.com
+      - key: FIREBASE_STORAGE_BUCKET
+        value: el-dev-chisom.firebasestorage.app
+      - key: FIREBASE_MESSAGING_SENDER_ID
+        value: "685206782494"
+      - key: FIREBASE_APP_ID
+        value: 1:685206782494:web:af0112c417b9a8083c640f
+      - key: FIREBASE_MEASUREMENT_ID
+        value: G-6VG2C4X6RM
       - key: GITHUB_TOKEN
         sync: false
     healthCheckPath: /health
 
-  # Frontend Static Site
+  # Frontend Static Site  
   - type: web
     name: portfolio-frontend
     env: static
     region: oregon
+    plan: free
     staticPublishPath: frontend
-    headers:
-      - path: /*
-        name: Cache-Control
-        value: public, max-age=0, must-revalidate
-      - path: /styles/*
-        name: Cache-Control
-        value: public, max-age=31536000, immutable
-      - path: /scripts/*
-        name: Cache-Control
-        value: public, max-age=31536000, immutable

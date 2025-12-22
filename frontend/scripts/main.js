@@ -252,14 +252,17 @@ class PortfolioAnimations {
         indicator.className = 'keep-alive-indicator';
         document.body.appendChild(indicator);
 
+        // Backend URL
+        const BACKEND_URL = 'https://portfolio-backend-ux42.onrender.com';
+
         // Keep-alive ping function
         const keepAlive = async () => {
             try {
                 // Show indicator animation
                 indicator.style.animation = 'keepAlivePulse 3s ease-in-out';
                 
-                // Ping the current domain to keep it alive
-                const response = await fetch(window.location.origin + '/favicon.ico', {
+                // Ping the backend to keep it alive
+                const response = await fetch(`${BACKEND_URL}/ping`, {
                     method: 'HEAD',
                     cache: 'no-cache'
                 });
@@ -272,7 +275,7 @@ class PortfolioAnimations {
                 }, 3000);
                 
             } catch (error) {
-                console.log('Keep-alive ping failed (normal for static sites):', error.message);
+                console.log('Keep-alive ping failed:', error.message);
                 
                 // Still show the animation to indicate the system is working
                 setTimeout(() => {
