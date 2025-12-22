@@ -1,23 +1,6 @@
-# Core FastAPI and server
-fastapi>=0.115.0
-uvicorn[standard]>=0.32.0
-python-multipart>=0.0.12
-
-# Environment and configuration
-python-decouple>=3.8
-python-dotenv>=1.0.1
-
-# HTTP clients and JWT
-requests>=2.32.0
-httpx>=0.28.0
-PyJWT>=2.9.0
-
-# Database and ORM
-sqlalchemy>=2.0.0
-email-validator>=2.0.0
-
-# Firebase integration
-firebase-admin>=6.0.0
-
-# Additional compatibility packages
-typing-extensions>=4.12.0
+# Minimal stable requirements for Python 3.11
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+python-dotenv==1.0.0
+requests==2.31.0

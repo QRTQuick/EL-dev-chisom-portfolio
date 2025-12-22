@@ -5,12 +5,10 @@ services:
     env: python
     region: oregon
     plan: free
-    buildCommand: cd backend && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
+    buildCommand: cd backend && pip install -r requirements.txt
     startCommand: cd backend && python -m uvicorn main:app --host 0.0.0.0 --port $PORT
-    pythonVersion: "3.11.9"
+    pythonVersion: "3.11"
     envVars:
-      - key: PYTHON_VERSION
-        value: "3.11.9"
       - key: ENVIRONMENT
         value: production
       - key: CORS_ORIGINS
@@ -38,11 +36,7 @@ services:
         value: 1:685206782494:web:af0112c417b9a8083c640f
       - key: FIREBASE_MEASUREMENT_ID
         value: G-6VG2C4X6RM
-      # Firebase Service Account (add these as secrets in Render dashboard)
-      - key: FIREBASE_PRIVATE_KEY
-        sync: false
-      - key: FIREBASE_CLIENT_EMAIL
-        sync: false
+      # Secrets (add these in Render dashboard)
       - key: GITHUB_TOKEN
         sync: false
     healthCheckPath: /health
