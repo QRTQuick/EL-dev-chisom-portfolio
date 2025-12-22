@@ -322,6 +322,31 @@ class PortfolioAnimations {
             navToggle.addEventListener('click', () => {
                 navMenu.classList.toggle('active');
                 navToggle.classList.toggle('active');
+                
+                // Prevent body scroll when menu is open
+                if (navMenu.classList.contains('active')) {
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.body.style.overflow = '';
+                }
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!navToggle.contains(e.target) && !navMenu.contains(e.target)) {
+                    navMenu.classList.remove('active');
+                    navToggle.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+
+            // Close menu on window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    navMenu.classList.remove('active');
+                    navToggle.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
             });
         }
 
@@ -604,21 +629,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileImg = document.getElementById('profile-img');
     if (profileImg) {
         profileImg.addEventListener('error', () => {
-            // Create a placeholder if image fails to load
+            // Create a fallback SVG if the main SVG fails to load
             profileImg.style.display = 'none';
             const placeholder = document.createElement('div');
             placeholder.style.cssText = `
                 width: 100%;
                 height: 100%;
-                background: linear-gradient(135deg, #16f2b3, #0dd8a0);
+                background: linear-gradient(135deg, #FF4444, #FFD700, #000000);
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 4rem;
-                color: #0f0f23;
+                font-size: 2rem;
+                color: white;
                 font-weight: bold;
+                text-align: center;
+                border-radius: 50%;
+                position: relative;
             `;
-            placeholder.textContent = 'CE';
+            placeholder.innerHTML = `
+                <div style="text-align: center; line-height: 1.2;">
+                    <div style="font-size: 1.5rem;">CE</div>
+                    <div style="font-size: 0.8rem; margin-top: 5px;">Problem Solver</div>
+                </div>
+            `;
             profileImg.parentNode.appendChild(placeholder);
         });
     }
