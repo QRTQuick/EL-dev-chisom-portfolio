@@ -2,6 +2,7 @@ import firebase_admin
 from firebase_admin import credentials, db
 from app.config import settings
 import json
+import os
 from typing import Dict, Any
 import logging
 
@@ -16,11 +17,31 @@ class FirebaseService:
         """Initialize Firebase Admin SDK"""
         try:
             if not firebase_admin._apps:
-                if settings.FIREBASE_CREDENTIALS_PATH:
+                # Try to use service account file first
+                if settings.FIREBASE_CREDENTIALS_PATH and os.path.exists(settings.FIREBASE_CREDENTIALS_PATH):
                     cred = credentials.Certificate(settings.FIREBASE_CREDENTIALS_PATH)
+                    logger.info("Using Firebase service account file")
+                # Use environment variables for Render deployment
+                elif os.getenv("FIREBASE_PRIVATE_KEY") and os.getenv("FIREBASE_CLIENT_EMAIL"):
+                    # Create service account dict from environment variables
+                    service_account_info = {
+                        "type": "service_account",
+                        "project_id": settings.FIREBASE_PROJECT_ID,
+                        "private_key_id": os.getenv("FIREBASE_PRIVATE_KEY_ID", ""),
+                        "private_key": os.getenv("FIREBASE_PRIVATE_KEY", "").replace('\\n', '\n'),
+                        "client_email": os.getenv("FIREBASE_CLIENT_EMAIL", ""),
+                        "client_id": os.getenv("FIREBASE_CLIENT_ID", ""),
+                        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                        "token_uri": "https://oauth2.googleapis.com/token",
+                        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+                        "client_x509_cert_url": f"https://www.googleapis.com/robot/v1/metadata/x509/{os.getenv('FIREBASE_CLIENT_EMAIL', '')}"
+                    }
+                    cred = credentials.Certificate(service_account_info)
+                    logger.info("Using Firebase service account from environment variables")
                 else:
-                    # Use default credentials or service account key from environment
+                    # Fallback to default credentials (for local development)
                     cred = credentials.ApplicationDefault()
+                    logger.info("Using Firebase default credentials")
                 
                 firebase_admin.initialize_app(cred, {
                     'databaseURL': settings.FIREBASE_DATABASE_URL
@@ -35,6 +56,7 @@ class FirebaseService:
     def track_visitor(self, visitor_data: Dict[str, Any]) -> bool:
         """Track visitor in Firebase Realtime Database"""
         if not self.initialized:
+            logger.warning("Firebase not initialized, skipping visitor tracking")
             return False
         
         try:

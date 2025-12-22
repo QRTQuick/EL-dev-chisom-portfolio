@@ -7,10 +7,11 @@ class Settings:
     # Firebase Configuration
     FIREBASE_DATABASE_URL = os.getenv("FIREBASE_DATABASE_URL")
     FIREBASE_CREDENTIALS_PATH = os.getenv("FIREBASE_CREDENTIALS_PATH")
+    FIREBASE_PROJECT_ID = os.getenv("FIREBASE_PROJECT_ID", "el-dev-chisom")
     
     # GitHub Configuration
     GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-    GITHUB_USERNAME = "QRTQuick"
+    GITHUB_USERNAME = os.getenv("GITHUB_USERNAME", "QRTQuick")
     
     # Email Configuration
     EMAIL_SERVICE_KEY = os.getenv("EMAIL_SERVICE_KEY")
