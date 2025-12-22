@@ -9,8 +9,16 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: ENVIRONMENT
+        value: production
       - key: CORS_ORIGINS
-        value: https://your-frontend-url.onrender.com
+        value: https://portfolio-frontend-[your-actual-id].onrender.com
+      - key: KEEP_ALIVE_URL
+        value: https://portfolio-backend-[your-actual-id].onrender.com
+      - key: GITHUB_USERNAME
+        value: QRTQuick
+      - key: EMAIL_FROM
+        value: chisomlifeeke@gmail.com
       - key: DATABASE_URL
         sync: false
       - key: FIREBASE_CREDENTIALS
@@ -24,16 +32,14 @@ services:
     name: portfolio-frontend
     env: static
     region: oregon
-    buildCommand: "cd frontend && npm install && npm run build"
-    staticPublishPath: frontend/dist
+    staticPublishPath: frontend
     headers:
       - path: /*
         name: Cache-Control
         value: public, max-age=0, must-revalidate
-      - path: /assets/*
+      - path: /styles/*
         name: Cache-Control
         value: public, max-age=31536000, immutable
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
+      - path: /scripts/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
