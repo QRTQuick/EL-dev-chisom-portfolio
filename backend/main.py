@@ -11,12 +11,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Keep-alive configuration
-KEEP_ALIVE_URL = os.getenv("KEEP_ALIVE_URL", "https://portfolio-backend-ux42.onrender.com")
-KEEP_ALIVE_INTERVAL = 2  # 2 seconds
+KEEP_ALIVE_URL = os.getenv("KEEP_ALIVE_URL", "https://backend-portfolio.onrender.com")
+KEEP_ALIVE_INTERVAL = 4  # 4 seconds
 
 # Keep-alive task using requests (sync) instead of httpx
 async def keep_alive_task():
-    """Background task to ping the server every 2 seconds to prevent sleep"""
+    """Background task to ping the server every 4 seconds to prevent sleep"""
     while True:
         try:
             # Use requests instead of httpx for keep-alive
@@ -40,8 +40,8 @@ async def lifespan(app: FastAPI):
 
 # Initialize FastAPI app with lifespan
 app = FastAPI(
-    title="EL-Dev Chisom Portfolio API",
-    description="Backend API for EL-Dev Chisom's portfolio website",
+    title="EL-Dev Portfolio API",
+    description="API service for EL-Dev Chisom's portfolio website",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -58,8 +58,15 @@ app.add_middleware(
 @app.get("/")
 async def root():
     return {
-        "message": "EL-Dev Chisom Portfolio API", 
+        "message": "EL-Dev Portfolio API Service", 
         "status": "active",
+        "version": "1.0.0",
+        "endpoints": {
+            "health": "/health",
+            "ping": "/ping", 
+            "github_repos": "/api/github/repos",
+            "contact": "/api/contact"
+        },
         "timestamp": datetime.now().isoformat()
     }
 
@@ -77,7 +84,8 @@ async def ping():
     return {
         "message": "pong",
         "timestamp": datetime.now().isoformat(),
-        "status": "alive"
+        "status": "alive",
+        "keep_alive_interval": f"{KEEP_ALIVE_INTERVAL} seconds"
     }
 
 @app.get("/api/github/repos")
