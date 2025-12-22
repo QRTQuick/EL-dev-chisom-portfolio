@@ -6,6 +6,7 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-decouple==3.8
 requests==2.31.0
+httpx==0.25.2
 aiofiles==23.2.1
 firebase-admin==6.2.0
 sqlalchemy==2.0.23
