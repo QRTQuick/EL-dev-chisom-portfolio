@@ -4,7 +4,6 @@ from contextlib import asynccontextmanager
 import os
 import asyncio
 import requests
-import httpx
 from datetime import datetime
 from dotenv import load_dotenv
 
