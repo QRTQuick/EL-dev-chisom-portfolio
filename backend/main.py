@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Form
+from fastapi import FastAPI, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
@@ -6,15 +6,22 @@ import asyncio
 import httpx
 from datetime import datetime
 from dotenv import load_dotenv
+from typing import Optional
 
 # Load environment variables
 load_dotenv()
 
-# Pydantic models
+# Pydantic models for v2
 class ContactRequest(BaseModel):
     name: str
     email: str
     message: str
+
+class HealthResponse(BaseModel):
+    status: str
+    service: str
+    timestamp: str
+    uptime: Optional[str] = "active"
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -67,9 +74,10 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {
-        "status": "healthy", 
+        "status": "healthy",
         "service": "portfolio-api",
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
+        "uptime": "active"
     }
 
 @app.get("/ping")
@@ -86,9 +94,12 @@ async def get_github_repos():
         github_username = os.getenv("GITHUB_USERNAME", "QRTQuick")
         async with httpx.AsyncClient() as client:
             response = await client.get(f"https://api.github.com/users/{github_username}/repos")
-            return response.json()
+            if response.status_code == 200:
+                return response.json()
+            else:
+                raise HTTPException(status_code=response.status_code, detail="Failed to fetch repositories")
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/contact")
 async def contact_form(
@@ -99,6 +110,15 @@ async def contact_form(
     return {
         "status": "success",
         "message": f"Thank you {name}! I'll get back to you soon.",
+        "timestamp": datetime.now().isoformat()
+    }
+
+# JSON endpoint for contact form
+@app.post("/api/contact/json")
+async def contact_form_json(contact: ContactRequest):
+    return {
+        "status": "success",
+        "message": f"Thank you {contact.name}! I'll get back to you soon at {contact.email}.",
         "timestamp": datetime.now().isoformat()
     }
 

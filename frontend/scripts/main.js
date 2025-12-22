@@ -1,12 +1,8 @@
-// Portfolio Animation System with Authentication
+// Portfolio Animation System
 class PortfolioAnimations {
     constructor() {
         this.init();
         this.setupKeepAlive();
-        this.setupAuthentication();
-        this.backendUrl = 'https://portfolio-backend-ux42.onrender.com';
-        this.token = localStorage.getItem('auth_token');
-        this.checkAuthStatus();
     }
 
     init() {
@@ -15,290 +11,6 @@ class PortfolioAnimations {
         this.setupTypewriter();
         this.setupContactForm();
         this.setupScrollToTop();
-    }
-
-    // Authentication System
-    setupAuthentication() {
-        const authLink = document.getElementById('auth-link');
-        const authModal = document.getElementById('auth-modal');
-        const authClose = document.querySelector('.auth-close');
-        const showRegister = document.getElementById('show-register');
-        const showLogin = document.getElementById('show-login');
-        const loginForm = document.getElementById('login-form-element');
-        const registerForm = document.getElementById('register-form-element');
-        const logoutBtn = document.getElementById('logout-btn');
-
-        // Open modal
-        authLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (this.token) {
-                this.showUserDashboard();
-            } else {
-                this.showLoginForm();
-            }
-            authModal.style.display = 'block';
-        });
-
-        // Close modal
-        authClose.addEventListener('click', () => {
-            authModal.style.display = 'none';
-        });
-
-        // Close modal when clicking outside
-        window.addEventListener('click', (e) => {
-            if (e.target === authModal) {
-                authModal.style.display = 'none';
-            }
-        });
-
-        // Switch between login and register
-        showRegister.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.showRegisterForm();
-        });
-
-        showLogin.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.showLoginForm();
-        });
-
-        // Handle login form
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await this.handleLogin(e.target);
-        });
-
-        // Handle register form
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            await this.handleRegister(e.target);
-        });
-
-        // Handle logout
-        logoutBtn.addEventListener('click', () => {
-            this.handleLogout();
-        });
-
-        // Dashboard actions
-        document.getElementById('view-analytics').addEventListener('click', () => {
-            this.viewAnalytics();
-        });
-
-        document.getElementById('view-messages').addEventListener('click', () => {
-            this.viewMessages();
-        });
-    }
-
-    showLoginForm() {
-        document.getElementById('login-form').style.display = 'block';
-        document.getElementById('register-form').style.display = 'none';
-        document.getElementById('user-dashboard').style.display = 'none';
-    }
-
-    showRegisterForm() {
-        document.getElementById('login-form').style.display = 'none';
-        document.getElementById('register-form').style.display = 'block';
-        document.getElementById('user-dashboard').style.display = 'none';
-    }
-
-    showUserDashboard() {
-        document.getElementById('login-form').style.display = 'none';
-        document.getElementById('register-form').style.display = 'none';
-        document.getElementById('user-dashboard').style.display = 'block';
-    }
-
-    async handleLogin(form) {
-        const formData = new FormData(form);
-        const loginData = {
-            email: formData.get('email'),
-            password: formData.get('password')
-        };
-
-        try {
-            const response = await fetch(`${this.backendUrl}/api/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(loginData)
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                this.token = result.access_token;
-                localStorage.setItem('auth_token', this.token);
-                localStorage.setItem('user_data', JSON.stringify(result.user));
-                
-                this.updateAuthUI(result.user);
-                this.showUserDashboard();
-                this.showNotification('Login successful!', 'success');
-            } else {
-                this.showNotification(result.detail || 'Login failed', 'error');
-            }
-        } catch (error) {
-            console.error('Login error:', error);
-            this.showNotification('Network error. Please try again.', 'error');
-        }
-    }
-
-    async handleRegister(form) {
-        const formData = new FormData(form);
-        const registerData = {
-            email: formData.get('email'),
-            password: formData.get('password'),
-            full_name: formData.get('full_name')
-        };
-
-        try {
-            const response = await fetch(`${this.backendUrl}/api/auth/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(registerData)
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                this.token = result.access_token;
-                localStorage.setItem('auth_token', this.token);
-                localStorage.setItem('user_data', JSON.stringify(result.user));
-                
-                this.updateAuthUI(result.user);
-                this.showUserDashboard();
-                this.showNotification('Registration successful!', 'success');
-            } else {
-                this.showNotification(result.detail || 'Registration failed', 'error');
-            }
-        } catch (error) {
-            console.error('Registration error:', error);
-            this.showNotification('Network error. Please try again.', 'error');
-        }
-    }
-
-    handleLogout() {
-        this.token = null;
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('user_data');
-        
-        this.updateAuthUI(null);
-        document.getElementById('auth-modal').style.display = 'none';
-        this.showNotification('Logged out successfully!', 'success');
-    }
-
-    checkAuthStatus() {
-        const userData = localStorage.getItem('user_data');
-        if (this.token && userData) {
-            try {
-                const user = JSON.parse(userData);
-                this.updateAuthUI(user);
-            } catch (error) {
-                console.error('Error parsing user data:', error);
-                this.handleLogout();
-            }
-        }
-    }
-
-    updateAuthUI(user) {
-        const authLink = document.getElementById('auth-link');
-        
-        if (user) {
-            authLink.textContent = user.full_name || user.email;
-            document.getElementById('user-name').textContent = user.full_name;
-            document.getElementById('user-email').textContent = user.email;
-        } else {
-            authLink.textContent = 'Login';
-        }
-    }
-
-    async viewAnalytics() {
-        if (!this.token) return;
-
-        try {
-            const response = await fetch(`${this.backendUrl}/api/analytics/stats`, {
-                headers: {
-                    'Authorization': `Bearer ${this.token}`
-                }
-            });
-
-            const result = await response.json();
-            
-            if (response.ok) {
-                this.showNotification('Analytics data loaded!', 'success');
-                console.log('Analytics:', result);
-            } else {
-                this.showNotification('Failed to load analytics', 'error');
-            }
-        } catch (error) {
-            console.error('Analytics error:', error);
-            this.showNotification('Network error', 'error');
-        }
-    }
-
-    async viewMessages() {
-        if (!this.token) return;
-
-        try {
-            const response = await fetch(`${this.backendUrl}/api/contact/messages`, {
-                headers: {
-                    'Authorization': `Bearer ${this.token}`
-                }
-            });
-
-            const result = await response.json();
-            
-            if (response.ok) {
-                this.showNotification('Messages loaded!', 'success');
-                console.log('Messages:', result);
-            } else {
-                this.showNotification('Failed to load messages', 'error');
-            }
-        } catch (error) {
-            console.error('Messages error:', error);
-            this.showNotification('Network error', 'error');
-        }
-    }
-
-    showNotification(message, type = 'info') {
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.textContent = message;
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            color: white;
-            font-weight: 500;
-            z-index: 3000;
-            opacity: 0;
-            transform: translateX(100%);
-            transition: all 0.3s ease;
-            ${type === 'success' ? 'background: linear-gradient(135deg, #10b981, #059669);' : ''}
-            ${type === 'error' ? 'background: linear-gradient(135deg, #ef4444, #dc2626);' : ''}
-            ${type === 'info' ? 'background: linear-gradient(135deg, #3b82f6, #1d4ed8);' : ''}
-        `;
-
-        document.body.appendChild(notification);
-
-        // Show notification
-        setTimeout(() => {
-            notification.style.opacity = '1';
-            notification.style.transform = 'translateX(0)';
-        }, 100);
-
-        // Hide notification
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            notification.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 300);
-        }, 3000);
     }
 
     // Navigation animations
@@ -322,31 +34,6 @@ class PortfolioAnimations {
             navToggle.addEventListener('click', () => {
                 navMenu.classList.toggle('active');
                 navToggle.classList.toggle('active');
-                
-                // Prevent body scroll when menu is open
-                if (navMenu.classList.contains('active')) {
-                    document.body.style.overflow = 'hidden';
-                } else {
-                    document.body.style.overflow = '';
-                }
-            });
-
-            // Close menu when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!navToggle.contains(e.target) && !navMenu.contains(e.target)) {
-                    navMenu.classList.remove('active');
-                    navToggle.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
-            });
-
-            // Close menu on window resize
-            window.addEventListener('resize', () => {
-                if (window.innerWidth > 768) {
-                    navMenu.classList.remove('active');
-                    navToggle.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
             });
         }
 
@@ -365,7 +52,7 @@ class PortfolioAnimations {
                 }
 
                 // Close mobile menu after clicking
-                if (navMenu.classList.contains('active')) {
+                if (navMenu && navMenu.classList.contains('active')) {
                     navMenu.classList.remove('active');
                     navToggle.classList.remove('active');
                 }
@@ -383,7 +70,6 @@ class PortfolioAnimations {
             
             sections.forEach(section => {
                 const sectionTop = section.offsetTop;
-                const sectionHeight = section.clientHeight;
                 if (window.scrollY >= (sectionTop - 200)) {
                     current = section.getAttribute('id');
                 }
@@ -481,15 +167,25 @@ class PortfolioAnimations {
             submitBtn.disabled = true;
 
             try {
-                // Simulate form submission (replace with actual endpoint)
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                
-                // Show success message
-                submitBtn.textContent = 'Message Sent!';
-                submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-                
-                // Reset form
-                contactForm.reset();
+                // Send to backend API
+                const response = await fetch('https://portfolio-backend-ux42.onrender.com/api/contact', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    // Show success message
+                    submitBtn.textContent = 'Message Sent!';
+                    submitBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    
+                    // Reset form
+                    contactForm.reset();
+                    
+                    // Show success notification
+                    this.showNotification('Message sent successfully!', 'success');
+                } else {
+                    throw new Error('Failed to send message');
+                }
                 
                 // Reset button after delay
                 setTimeout(() => {
@@ -503,6 +199,8 @@ class PortfolioAnimations {
                 submitBtn.textContent = 'Error - Try Again';
                 submitBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
                 
+                this.showNotification('Failed to send message. Please try again.', 'error');
+                
                 setTimeout(() => {
                     submitBtn.textContent = originalText;
                     submitBtn.disabled = false;
@@ -510,6 +208,48 @@ class PortfolioAnimations {
                 }, 3000);
             }
         });
+    }
+
+    // Show notification
+    showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 3000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            ${type === 'success' ? 'background: linear-gradient(135deg, #10b981, #059669);' : ''}
+            ${type === 'error' ? 'background: linear-gradient(135deg, #ef4444, #dc2626);' : ''}
+            ${type === 'info' ? 'background: linear-gradient(135deg, #3b82f6, #1d4ed8);' : ''}
+        `;
+
+        document.body.appendChild(notification);
+
+        // Show notification
+        setTimeout(() => {
+            notification.style.opacity = '1';
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+
+        // Hide notification
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }, 3000);
     }
 
     // Scroll to top functionality
@@ -524,7 +264,7 @@ class PortfolioAnimations {
             right: 20px;
             width: 50px;
             height: 50px;
-            background: linear-gradient(135deg, #16f2b3, #0dd8a0);
+            background: linear-gradient(135deg, #00FFFF, #40E0D0);
             color: #0f0f23;
             border: none;
             border-radius: 50%;
