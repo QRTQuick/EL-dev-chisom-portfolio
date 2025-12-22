@@ -417,26 +417,139 @@
                 <div class="game-intro">
                     <h3>Take a Break with Snake Game</h3>
                     <p>Need a quick mental break? Play this classic snake game and relax your mind!</p>
-                    <div class="game-controls">
-                        <button id="start-game" class="btn btn-primary">Start Game</button>
-                        <button id="pause-game" class="btn btn-secondary">Pause</button>
-                        <button id="reset-game" class="btn btn-secondary">Reset</button>
+                    
+                    <!-- Game Status Display -->
+                    <div class="game-status">
+                        <div class="game-score">
+                            <div class="score-item">
+                                <span class="score-label">Score</span>
+                                <span class="score-value" id="score">0</span>
+                            </div>
+                            <div class="score-item">
+                                <span class="score-label">High Score</span>
+                                <span class="score-value" id="high-score">0</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="game-score">
-                        <span>Score: <span id="score">0</span></span>
-                        <span>High Score: <span id="high-score">0</span></span>
+
+                    <!-- Game Controls -->
+                    <div class="game-controls">
+                        <button id="start-game" class="btn btn-primary">
+                            <i class="fas fa-play"></i>
+                            <span>Start Game</span>
+                        </button>
+                        <button id="pause-game" class="btn btn-secondary">
+                            <i class="fas fa-pause"></i>
+                            <span>Pause</span>
+                        </button>
+                        <button id="reset-game" class="btn btn-secondary">
+                            <i class="fas fa-redo"></i>
+                            <span>Reset</span>
+                        </button>
                     </div>
                 </div>
+
                 <div class="game-container">
-                    <canvas id="snake-game" width="400" height="400"></canvas>
+                    <!-- Game Canvas -->
+                    <div class="game-canvas-wrapper">
+                        <canvas id="snake-game" width="400" height="400"></canvas>
+                        <div class="game-overlay" id="game-overlay">
+                            <div class="overlay-content">
+                                <h3>Snake Game</h3>
+                                <p>Tap "Start Game" to begin!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Touch Controls -->
+                    <div class="mobile-controls">
+                        <div class="control-options">
+                            <div class="control-mode-selector">
+                                <button class="mode-btn active" id="swipe-mode">
+                                    <i class="fas fa-hand-paper"></i>
+                                    <span>Swipe</span>
+                                </button>
+                                <button class="mode-btn" id="drag-mode">
+                                    <i class="fas fa-arrows-alt"></i>
+                                    <span>Drag</span>
+                                </button>
+                                <button class="mode-btn" id="button-mode">
+                                    <i class="fas fa-gamepad"></i>
+                                    <span>Buttons</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Swipe Control Area -->
+                        <div class="control-area swipe-control active" id="swipe-control">
+                            <div class="swipe-zone">
+                                <div class="swipe-instructions">
+                                    <i class="fas fa-hand-paper"></i>
+                                    <p>Swipe in any direction to control the snake</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Drag Control Area -->
+                        <div class="control-area drag-control" id="drag-control">
+                            <div class="drag-zone">
+                                <div class="drag-snake" id="drag-snake">
+                                    <div class="drag-head"></div>
+                                    <div class="drag-body"></div>
+                                    <div class="drag-body"></div>
+                                </div>
+                                <div class="drag-instructions">
+                                    <i class="fas fa-arrows-alt"></i>
+                                    <p>Drag the snake head to control direction</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Button Control Pad -->
+                        <div class="control-area button-control" id="button-control">
+                            <div class="control-pad">
+                                <button class="control-btn control-up" id="control-up">
+                                    <i class="fas fa-chevron-up"></i>
+                                </button>
+                                <div class="control-middle">
+                                    <button class="control-btn control-left" id="control-left">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </button>
+                                    <div class="control-center">
+                                        <i class="fas fa-crosshairs"></i>
+                                    </div>
+                                    <button class="control-btn control-right" id="control-right">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                                <button class="control-btn control-down" id="control-down">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Game Instructions -->
                     <div class="game-instructions">
                         <h4>How to Play:</h4>
-                        <ul>
-                            <li>Use arrow keys or WASD to move</li>
-                            <li>Eat the red food to grow</li>
-                            <li>Don't hit the walls or yourself</li>
-                            <li>Mobile: Swipe to control</li>
-                        </ul>
+                        <div class="instruction-grid">
+                            <div class="instruction-item">
+                                <i class="fas fa-keyboard"></i>
+                                <span>Desktop: Arrow keys or WASD</span>
+                            </div>
+                            <div class="instruction-item">
+                                <i class="fas fa-hand-pointer"></i>
+                                <span>Mobile: Swipe or use controls</span>
+                            </div>
+                            <div class="instruction-item">
+                                <i class="fas fa-apple-alt"></i>
+                                <span>Eat red food to grow</span>
+                            </div>
+                            <div class="instruction-item">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span>Avoid walls and yourself</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

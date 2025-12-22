@@ -1,27 +1,13 @@
 from fastapi import FastAPI, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 import os
 import asyncio
 import httpx
 from datetime import datetime
 from dotenv import load_dotenv
-from typing import Optional
 
 # Load environment variables
 load_dotenv()
-
-# Pydantic models for v2
-class ContactRequest(BaseModel):
-    name: str
-    email: str
-    message: str
-
-class HealthResponse(BaseModel):
-    status: str
-    service: str
-    timestamp: str
-    uptime: Optional[str] = "active"
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -107,18 +93,48 @@ async def contact_form(
     email: str = Form(...),
     message: str = Form(...)
 ):
+    # Basic validation
+    if not name or len(name.strip()) < 2:
+        raise HTTPException(status_code=400, detail="Name must be at least 2 characters")
+    
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Valid email is required")
+    
+    if not message or len(message.strip()) < 10:
+        raise HTTPException(status_code=400, detail="Message must be at least 10 characters")
+    
+    # Log the contact form submission
+    print(f"Contact form submission: {name} ({email}) - {message[:50]}...")
+    
     return {
         "status": "success",
         "message": f"Thank you {name}! I'll get back to you soon.",
         "timestamp": datetime.now().isoformat()
     }
 
-# JSON endpoint for contact form
+# Simple JSON endpoint for contact form (no Pydantic models)
 @app.post("/api/contact/json")
-async def contact_form_json(contact: ContactRequest):
+async def contact_form_json(data: dict):
+    name = data.get("name", "").strip()
+    email = data.get("email", "").strip()
+    message = data.get("message", "").strip()
+    
+    # Basic validation
+    if not name or len(name) < 2:
+        raise HTTPException(status_code=400, detail="Name must be at least 2 characters")
+    
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Valid email is required")
+    
+    if not message or len(message) < 10:
+        raise HTTPException(status_code=400, detail="Message must be at least 10 characters")
+    
+    # Log the contact form submission
+    print(f"Contact form JSON submission: {name} ({email}) - {message[:50]}...")
+    
     return {
         "status": "success",
-        "message": f"Thank you {contact.name}! I'll get back to you soon at {contact.email}.",
+        "message": f"Thank you {name}! I'll get back to you soon at {email}.",
         "timestamp": datetime.now().isoformat()
     }
 
